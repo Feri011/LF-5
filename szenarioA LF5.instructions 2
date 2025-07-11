@@ -1,1 +1,106 @@
-
+import sqlite3
+conn = sqlite3.connect('szenarioA_LF5.db')
+cursor = conn.cursor()
+cursor.execute("""
+ CREATE TABLE IF NOT EXISTS ort (
+               ort_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               stadt text not null,
+               plz text not null,
+               )
+               """)
+cursor.execute("""
+               create table if not exists adresse (
+               adresse_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               strasse text not null,
+               haus_nr text not null,
+               ort_id integer not null,
+               plz text not null,
+                FOREIGN KEY (ort_id) REFERENCES ort(ort_id)
+)
+               """)
+cursor.execute("""
+ceate table if not exists lieferant (
+lief_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               name text  not null,
+                adresse_id integer not null,
+                FOREIGN KEY (adresse_id) REFERENCES adresse(adresse_id)
+)
+""")
+cursor.execute("""
+create table if not exists kunde  (
+               kd_nr integer primary key autoincrement,
+                name text not null,
+               vorname text not null,
+               geburtsdatum text not null, 
+                adresse_id integer not null,
+                FOREIGN KEY (adresse_id) REFERENCES adresse(adresse_id)
+)
+""")
+cursor.execute("""
+create table if not exists bestellung (
+               bestell_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               datum text not null,
+               gesamtpreis real not null,
+               kd_nr integer not null,
+                FOREIGN KEY (kd_nr) REFERENCES kunde(kd_nr)
+)
+""")
+cursor.execute("""
+create table if not exists zutat (
+                zutat_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               zutat_name text not null,
+               BESTAND integer not null,
+    mengeneinheit text not null
+               nettopreis real not null
+               lief_nr integer not null,
+                FOREIGN KEY (lief_nr) REFERENCES lieferant(lief_id)
+)
+""")
+cursor.execute("""
+create table if not exists naehrwert  (
+                naehrwert_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               kalorien_pro real not null,
+               kolenhydrate_pro real not null,
+               protein_pro real not null,
+                fett_pro real not null,
+                zutat_id integer not null,
+                FOREIGN KEY (zutat_id) REFERENCES zutat(zutat_id)
+)
+""")
+cursor.execute("""
+create table if not exists allergen (
+                allergen_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                allergen_name text not null
+)
+""")
+cursor.execute("""
+create table if not exists zutat_allergen (
+                zutat_id integer not null,
+                allergen_id integer not null,
+                primary key (zutat_id, allergen_id),
+                FOREIGN KEY (zutat_id) REFERENCES zutat(zutat_id),
+                FOREIGN KEY (allergen_id) REFERENCES allergen(allergen_id)
+)
+""")
+cursor.execute("""
+create table if not exists rezept (
+                rezept_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                rezept_name text not null,
+                zubreitung text not null,
+               )
+""")
+cursor.execute("""
+create table if not exists ernaehrungskategorie (#
+                kategorie_id INTEGER PRIMARY KEY AUTOINCREMENT,
+               kategorie_name text not null
+)
+""")
+cursor.execute("""
+create table if not exists rezept_hat_kategorie (
+                rezept_id integer not null,
+                kategorie_id integer not null,
+                primary key (rezept_id, kategorie_id),
+                FOREIGN KEY (rezept_id) REFERENCES rezept(rezept_id),
+                FOREIGN KEY (kategorie_id) REFERENCES ernaehrungskategorie(kategorie_id)
+)
+""")
